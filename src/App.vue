@@ -2,14 +2,12 @@
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
-import BlankLayout from '@/layouts/BlankLayout.vue'
 import AuthLayout from '@/layouts/AuthLayout.vue'
 
 const route = useRoute()
 
 const layoutMap = {
   default: DefaultLayout,
-  blank: BlankLayout,
   auth: AuthLayout,
 }
 

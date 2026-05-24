@@ -10,7 +10,8 @@
  */
 
 import axios from 'axios'
-import { ResultCode, getMessage } from './constants/ResultCode'
+import {ResultCode, getMessage, BAD_REQUEST, FORBIDDEN} from './constants/ResultCode'
+import router from '@/router'
 
 // 创建 axios 实例
 const service = axios.create({
@@ -66,8 +67,8 @@ service.interceptors.response.use(
 
     if (res.code !== ResultCode.SUCCESS && res.code !== 0) {
       // 业务错误处理
-      handleBusinessError(res.code, res.message)
-      return Promise.reject(new Error(res.message || getMessage(res.code)))
+      handleBusinessError(res)
+      return Promise.reject(new Error(`${res.message || getMessage(res.code)}: 错误代码:${res.traceId}`))
     }
 
     return res
@@ -86,7 +87,7 @@ service.interceptors.response.use(
  * @param {number} code - 业务错误码
  * @param {string} message - 错误消息
  */
-function handleBusinessError(code, message) {
+function handleBusinessError({code, message, traceId}) {
   const msg = message || getMessage(code)
 
   switch (code) {
@@ -96,17 +97,11 @@ function handleBusinessError(code, message) {
     case ResultCode.TOKEN_KICKED:
       // Token 过期或无效，清除登录状态，跳转登录页
       localStorage.removeItem('token')
-      // 可引入 router 后跳转: router.push('/login')
-      console.warn(`[Auth] ${msg}`)
-      break
-    case ResultCode.FORBIDDEN:
-      console.warn(`[Auth] ${msg}`)
-      break
-    case ResultCode.NOT_FOUND:
-      console.warn(`[Request] ${msg}`)
+      console.warn(`[Auth] ${msg}: ${traceId}`)
+      router.push('/login')
       break
     default:
-      console.warn(`[Business Error] ${code}: ${msg}`)
+      console.warn(`[Business Error] ${code}: ${message}: ${traceId}`)
   }
 }
 

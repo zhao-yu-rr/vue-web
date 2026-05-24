@@ -39,3 +39,11 @@ export function login(params) {
 export function getUserInfo() {
   return get('/auth/info')
 }
+
+/**
+ * 用户退出登录
+ * @returns {Promise}
+ */
+export function logout() {
+  return post('/auth/logout')
+}
